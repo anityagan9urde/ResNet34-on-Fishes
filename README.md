@@ -38,18 +38,26 @@ class FishDataset(torch.utils.data.Dataset):
 
         return image, label
 ```      
-- ### Creating DataLoaders:
-    - Data Loaders convert the data into a set of batches making it easier to pass to the model
+- ### Iterating through the dataset using DataLoaders:
+    - Data Loaders convert the data into a set of batches making it easier to pass to the model.
+    - They also let us shuffle the data and load it parallely using multiprocessing workers.
     - We import `DataLoader` from `torch.utils.data` and pass in our dataset with the batch size and number of other parameters.
-    - We get different data loaders which we can now pass to the model for training, batch by batch.<br>
+    - We get different data loaders which can now be passed to the model for training in batches.<br>
 ## Model:
 - ### Selecting ResNet-34 as a pretrained model:
     - #### Residual Networks:
-        - Basic Structure:<br>
-        ![](https://github.com/AnityaGan9urde/ResNet34-on-Fishes/blob/main/images/Residual-Block.jpg)<br><br>
-        - Architecture:<br>
-    ![](https://github.com/AnityaGan9urde/ResNet34-on-Fishes/blob/main/images/ResNet.jpg)<br><br>
+        - ResNets or Residual Networks are a type of neural networks where some layers are skipped while training and the performance of the network is improved drastically.
+        - They are used as a method to learn the identity function for a network (which is when the output equals the input).
+        - Basic Structure of a ResNet:<br>
+        ![](https://github.com/AnityaGan9urde/ResNet34-on-Fishes/blob/main/images/Residual-Block.jpg)<br>
+        - ResNets when used with CNNs have been shown to perform much better than simply using a CNN. The problem being that as the number of layers increase the problem of vanishing/exploding gradients occur. 
+        - ResNets have been shown to negate that problem as they directly skip some layers hence leading to fewer layers being trained at the initial stages of training and then gradually adjusts the skip connections to train the entire network. Hence, removing the problem of vanishing gradients as there are fewer layers to train and leading to a more better model.
+        - Architecture of a ResNet as compared to simple neural networks:<br>
+        ![](https://github.com/AnityaGan9urde/ResNet34-on-Fishes/blob/main/images/ResNet.jpg)<br>
+        - The skip connections within layers in the third diagram is the basic idea behind ResNets and it helps with improving the performance of any deep layered neural network model. 
     - #### Code:
+      - To import a Pretrained ResNet-34 in your code use the below command and replace the last layer with the required number of classes.
+      - ResNet-34 was selected as it is much lighter and can work more efficiently for this simple dataset with just nine classes.
         ```python
         class FishModel(nn.Module):
     
@@ -63,14 +71,16 @@ class FishDataset(torch.utils.data.Dataset):
                 :
                 :
           ```
-- ### Creating Helper functions: 
+- ### Creating Some Helper functions: 
 ```python
+# A training step function which takes the predictions for a batch of images and calculates the loss
 def training_step(self, batch):
     images, labels = batch
     out = self(images)                  # Generate predictions
     loss = F.cross_entropy(out, labels)  # Calculate loss
     return loss
     
+# A function to evaluate on the validation data and get performance scores
 def evaluate(model, val_loader):
     model.eval()
     outputs = [model.validation_step(batch) for batch in val_loader]
@@ -78,9 +88,9 @@ def evaluate(model, val_loader):
   ```
 ## Training:
 - ### Deploying to GPU:
-    - Before starting the training we should always check for what device is available to train on.
-    - Using the following code to check:
-    ```python
+    - GPUs are used for deep learning training because of their faster parallel computation and matrix manipulation abilities. Hence, we will train our model on a GPU.
+    - Using the following code to check the availability of a GPU:
+   ```python
     if torch.cuda.is_available():
         return torch.device('cuda')
     else:
@@ -88,6 +98,7 @@ def evaluate(model, val_loader):
     ```
           
 - ### Fitting the data on the model:
+    - A function to fit the data to the model, train it for any number of epochs, backpropagate errors and evaluating the model to return the scores.
 ```python 
 def fit_one_cycle(epochs, max_lr, model, train_loader, val_loader,
                   weight_decay=0, grad_clip=None, opt_func=torch.optim.SGD):
@@ -100,39 +111,50 @@ def fit_one_cycle(epochs, max_lr, model, train_loader, val_loader,
     sched = torch.optim.lr_scheduler.OneCycleLR(optimizer, max_lr, epochs=epochs, steps_per_epoch=len(train_loader))
 
     for epoch in range(epochs):
-        # Training Phase
-        model.train()
+        model.train()                               #Training the model for a single epoch
         train_losses = []
         lrs = []
-        for batch in tqdm(train_loader):
+        for batch in tqdm(train_loader):            #Calculating the loss for each batch
             loss = model.training_step(batch)
             train_losses.append(loss)
-            loss.backward()
+            loss.backward()                         #Calculating the gradients to update the weights
 
-            # Gradient clipping
-            if grad_clip:
+            if grad_clip:                           #Gradient clipping
                 nn.utils.clip_grad_value_(model.parameters(), grad_clip)
 
-            optimizer.step()
-            optimizer.zero_grad()
+            optimizer.step()                        #Moving down the slope of loss function
+            optimizer.zero_grad()                   #Zero out gradients to be updated for the next step
 
-            # Record & update learning rate
-            lrs.append(get_lr(optimizer))
+            lrs.append(get_lr(optimizer))           # Record & update learning rate
             sched.step()
 
-        # Validation phase
-        result = evaluate(model, val_loader)
+        result = evaluate(model, val_loader)        #Evaluating the model on the validation data
         result['train_loss'] = torch.stack(train_losses).mean().item()
         result['lrs'] = lrs
         model.epoch_end(epoch, result)
         history.append(result)
-    return history
+    return history        
+  ```
+  - The model starts training when the above function is called as such:
+  ```python
+  history += fit_one_cycle()
+  ```
+  - Training is finished when the model trains for all the epochs:
+  ```
+  
   ```
 
 ## Testing:
-- After testing the model on the test dataset, we get an accuracy of around **99.41%**.
+- The model can now be tested on the Test dataset using the Test Dataloader.
+- After testing the model, we get an accuracy of around **99.41%**.
 ## Results:
 - ### Loss vs. No. of Epochs:<br>
 ![](https://github.com/AnityaGan9urde/ResNet34-on-Fishes/blob/main/images/loss.jpg)<br>
+- We can clearly see that the loss decreases as the number of epochs increases. Even though it reaches the highest point at the second epoch, as it learns more the loss goes to almost zero.
 - ### Accuracy vs. No. of Epochs:<br>
 ![](https://github.com/AnityaGan9urde/ResNet34-on-Fishes/blob/main/images/accuracy.jpg)<br>
+- Similarly, for the accuracy, the model gives out a lower accuracy at the beginning of the training but then goes higher and reaches to almost 1.0.
+## Conclusion:
+- ResNets have been shown to perform better when deep neural networks are involved which can be seen by the accuracy generated by this model.
+- We can use a more complicated model such as ResNet-50 but it would be excessive in this case as I have achieved an accuracy more than 99% on test set.
+- Also, PyTorch can be a very powerful deep learning framework to build such models as they give a lot of flexibility and much better control on what actually happens behind the curtains of deep learning.
