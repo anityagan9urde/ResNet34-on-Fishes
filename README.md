@@ -48,7 +48,7 @@ class FishDataset(torch.utils.data.Dataset):
         - Basic Structure:<br>
         ![](https://github.com/AnityaGan9urde/ResNet34-on-Fishes/blob/main/images/Residual-Block.jpg)<br><br>
         - Architecture:<br>
-        ![](https://github.com/AnityaGan9urde/ResNet34-on-Fishes/blob/main/images/ResNet.jpg)<br><br>
+    ![](https://github.com/AnityaGan9urde/ResNet34-on-Fishes/blob/main/images/ResNet.jpg)<br><br>
     - #### Code:
         ```python
         class FishModel(nn.Module):
