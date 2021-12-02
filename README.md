@@ -142,7 +142,7 @@ def fit_one_cycle(epochs, max_lr, model, train_loader, val_loader,
                          weight_decay=weight_decay, 
                          opt_func=opt_func)  
 ```
-  - Training is finished when the model trains for the number of epochs:
+  - Training is finished when the model trains for the number of epochs which I have selected to be six:
   ```
   0%|          | 0/54 [00:00<?, ?it/s]
 
@@ -177,7 +177,7 @@ Wall time: 7min 59s
 ## Results:
 - ### Loss vs. No. of Epochs:<br>
 ![](https://github.com/AnityaGan9urde/ResNet34-on-Fishes/blob/main/images/loss.jpg)<br>
-- We can clearly see that the loss decreases as the number of epochs increases. Even though it reaches the highest point at the second epoch, as it learns more the loss goes to almost zero.
+- We can clearly see that the loss decreases as the number of epochs increases. Even though it reaches the highest point on the first epoch, as it learns more the loss goes to almost zero.
 - ### Accuracy vs. No. of Epochs:<br>
 ![](https://github.com/AnityaGan9urde/ResNet34-on-Fishes/blob/main/images/accuracy.jpg)<br>
 - Similarly, for the accuracy, the model gives out a lower accuracy at the beginning of the training but then goes higher and reaches to almost 1.0.
