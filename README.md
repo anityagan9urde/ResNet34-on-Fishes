@@ -137,11 +137,38 @@ def fit_one_cycle(epochs, max_lr, model, train_loader, val_loader,
   ```
   - The model starts training when the above function is called as such:
   ```python
-  history += fit_one_cycle()
+  history += fit_one_cycle(epochs, max_lr, model, train_dl, valid_dl, 
+                         grad_clip=grad_clip, 
+                         weight_decay=weight_decay, 
+                         opt_func=opt_func)  
+```
+  - Training is finished when the model trains for the number of epochs:
   ```
-  - Training is finished when the model trains for all the epochs:
-  ```
-  
+  0%|          | 0/54 [00:00<?, ?it/s]
+
+Epoch [0],last_lr: 0.00596, train_loss: 0.38011255860328674, val_loss: 578.192138671875, val_acc: 0.10717707872390747
+
+  0%|          | 0/54 [00:00<?, ?it/s]
+
+Epoch [1],last_lr: 0.00994, train_loss: 0.3608550727367401, val_loss: 25.896209716796875, val_acc: 0.2486458271741867
+
+  0%|          | 0/54 [00:00<?, ?it/s]
+
+Epoch [2],last_lr: 0.00812, train_loss: 0.24963808059692383, val_loss: 1.502174735069275, val_acc: 0.6577916741371155
+
+  0%|          | 0/54 [00:00<?, ?it/s]
+
+Epoch [3],last_lr: 0.00463, train_loss: 0.0408831387758255, val_loss: 0.1541007161140442, val_acc: 0.9476354122161865
+
+  0%|          | 0/54 [00:00<?, ?it/s]
+
+Epoch [4],last_lr: 0.00133, train_loss: 0.008193316869437695, val_loss: 0.14649251103401184, val_acc: 0.9397916793823242
+
+  0%|          | 0/54 [00:00<?, ?it/s]
+
+Epoch [5],last_lr: 0.00000, train_loss: 0.002655074931681156, val_loss: 0.011105048470199108, val_acc: 0.9973958134651184
+CPU times: user 58.3 s, sys: 22.5 s, total: 1min 20s
+Wall time: 7min 59s
   ```
 
 ## Testing:
