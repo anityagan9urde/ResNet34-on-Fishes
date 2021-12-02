@@ -174,6 +174,24 @@ Wall time: 7min 59s
 ## Testing:
 - The model can now be tested on the Test dataset using the Test Dataloader.
 - After testing the model, we get an accuracy of around **99.41%**.
+- Function to test random images:
+```python
+def predict_image(image):
+    xb = to_device(image.unsqueeze(0), device) #Sending the images to the device i.e. GPU
+    yb = model(xb)                             #Generating predictions
+    _, preds  = torch.max(yb, dim=1)
+    return classes[preds[0].item()]
+```
+- Selecting random images and testing the model:
+```python
+img, label = test_ds[500]
+plt.imshow(img.permute(1, 2, 0))
+print('Label:', classes[label], ', Predicted:', predict_image(img))
+```
+- Output:
+> Label: Red Sea Bream, Predicted: Red Sea Bream
+>![](https://github.com/AnityaGan9urde/ResNet34-on-Fishes/blob/main/images/test_fish.png)<br>
+
 ## Results:
 - ### Loss vs. No. of Epochs:<br>
 ![](https://github.com/AnityaGan9urde/ResNet34-on-Fishes/blob/main/images/loss.jpg)<br>
